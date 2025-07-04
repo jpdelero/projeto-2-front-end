@@ -1,50 +1,81 @@
-function ocultarTodos() {
-  document.querySelectorAll('.exemplo1, .exemplo2, .exemplo3').forEach(div => {
-    div.style.display = 'none';
+const conteudo = document.getElementById('conteudo');
+
+function formE1() {
+  conteudo.innerHTML = `
+    <h1>Formulário de Valores</h1>
+    <form id="formulario">
+      <label for="valor1">Valor 1:</label>
+      <input type="text" id="valor1" required><br>
+
+      <label for="valor2">Valor 2:</label>
+      <input type="text" id="valor2" required><br>
+
+      <label for="valor3">Valor 3:</label>
+      <input type="text" id="valor3" required><br>
+
+      <label for="valor4">Valor 4:</label>
+      <input type="text" id="valor4" required><br>
+
+      <label for="valor5">Valor 5:</label>
+      <input type="text" id="valor5" required><br>
+
+      <button type="submit">Salvar em TXT</button>
+    </form>
+  `;
+
+  document.getElementById("formulario").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // Coletar valores
+    const valores = [];
+    for (let i = 1; i <= 5; i++) {
+      const valor = document.getElementById(`valor${i}`).value.trim();
+      if (valor === "") {
+        alert(`O campo Valor ${i} está vazio.`);
+        return;
+      }
+      valores.push(valor);
+    }
+
+    // Criar conteúdo do TXT
+    const conteudo = valores.map((v, i) => `Valor ${i + 1}: ${v}`).join("\n");
+
+    // Criar e baixar o arquivo TXT
+    const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "valores.txt";
+    link.click();
   });
 }
 
-function openExemplo1() {
-  ocultarTodos();
-  document.querySelector('.exemplo1').style.display = 'block';
+function listaE2() {
+  conteudo.innerHTML = `
+    <h1>Manipulando Frutas</h1>
+
+    <input type="text" id="frutaInput" placeholder="Digite uma fruta" />
+    <button onclick="adicionarFruta()">Adicionar</button>
+
+    <h2>Frutas:</h2>
+    <p id="listaFrutas">[ ]</p>
+
+    <div class="botoes">
+      <button onclick="metodo('push')">Push (Adicionar ao final)</button>
+      <button onclick="metodo('pop')">Pop (Remover do final)</button>
+      <button onclick="metodo('shift')">Shift (Remover do início)</button>
+      <button onclick="metodo('unshift')">Unshift (Adicionar ao início)</button>
+      <button onclick="verificarBanana()">Includes('banana')</button>
+      <button onclick="mostrarIndex('uva')">IndexOf('uva')</button>
+      <button onclick="mostrarJoin()">Join(', ')</button>
+      <button onclick="mostrarSlice()">Slice(1, 3)</button>
+      <button onclick="fazerSplice()">Splice(1, 1)</button>
+      <button onclick="mapMaiusculas()">Map (MAIÚSCULAS)</button>
+      <button onclick="filtrarGrandes()">Filter (nome > 4 letras)</button>
+    </div>
+
+    <pre id="saida"></pre>
+  `;
 }
-
-function openExemplo2() {
-  ocultarTodos();
-  document.querySelector('.exemplo2').style.display = 'block';
-}
-
-function openExemplo3() {
-  ocultarTodos();
-  document.querySelector('.exemplo3').style.display = 'block';
-}
-
-document.addEventListener('DOMContentLoaded', ocultarTodos);
-
-document.getElementById("formulario").addEventListener("submit", function (e) {
-  e.preventDefault();
-
-  // Coletar valores
-  const valores = [];
-  for (let i = 1; i <= 5; i++) {
-    const valor = document.getElementById(`valor${i}`).value.trim();
-    if (valor === "") {
-      alert(`O campo Valor ${i} está vazio.`);
-      return;
-    }
-    valores.push(valor);
-  }
-
-  // Criar conteúdo do TXT
-  const conteudo = valores.map((v, i) => `Valor ${i + 1}: ${v}`).join("\n");
-
-  // Criar e baixar o arquivo TXT
-  const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "valores.txt";
-  link.click();
-});
 
 let frutas = [];
 
@@ -119,42 +150,68 @@ function filtrarGrandes() {
   document.getElementById('saida').textContent = "filter (length > 4): " + JSON.stringify(grandes);
 }
 
+function jogoE3() {
+  conteudo.innerHTML = `
+    <div class="container">
+      <div class="container__conteudo">
+        <div class="container__informacoes">
+          <div class="container__texto">
+            <h1 id="titulo-jogo">Adivinhe o <span class="container__texto-azul">número secreto</span></h1>
+            <p id="mensagem-jogo">Escolha um número entre 1 e 10</p>
+          </div>
+          <input type="number" min="1" max="10" id="input-chute" class="container__input">
+          <div class="chute container__botoes">
+            <button id="botao-chutar">Chutar</button>
+            <button id="reiniciar" disabled>Novo jogo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("botao-chutar").onclick = verificarChute;
+  document.getElementById("reiniciar").onclick = reiniciarJogo;
+  numeroSecreto = gerarNumeroAleatorio();
+  tentativas = 1;
+  document.getElementById('reiniciar').disabled = true;
+  document.getElementById('botao-chutar').disabled = false;
+  exibirMensagemInicial();
+}
+
 let listaDeNumerosSorteados = [];
 let numeroLimite = 10;
 let numeroSecreto = gerarNumeroAleatorio();
 let tentativas = 1;
 
-function exibirTextoNaTela(tag, texto) {
-  let campo = document.getElementById(tag);
-  if (campo) {
-    campo.innerHTML = texto;
-    if (responsiveVoice.voiceSupport()) {
-      responsiveVoice.speak(texto, 'Brazilian Portuguese Female', { rate: 1.2 });
-    }
-  }
+function exibirTextoNaTela(tagId, texto) {
+  let campo = document.getElementById(tagId);
+  campo.innerHTML = texto;
 }
 
 function exibirMensagemInicial() {
-    exibirTextoNaTela('tituloJogo', 'Jogo do número secreto');
-    exibirTextoNaTela('mensagemJogo', 'Escolha um número entre 1 e 10');
+  exibirTextoNaTela('titulo-jogo', 'Jogo do número secreto');
+  exibirTextoNaTela('mensagem-jogo', 'Escolha um número entre 1 e 10');
 }
 
 exibirMensagemInicial();
 
 function verificarChute() {
-  let chute = parseInt(document.getElementById('inputChute').value);
+  let chute = parseInt(document.getElementById("input-chute").value);
 
   if (chute === numeroSecreto) {
-    exibirTextoNaTela('tituloJogo', 'Acertou!');
+    exibirTextoNaTela('titulo-jogo', 'Acertou!');
     let palavraTentativa = tentativas > 1 ? 'tentativas' : 'tentativa';
     let mensagemTentativas = `Você descobriu o número secreto com ${tentativas} ${palavraTentativa}!`;
-    exibirTextoNaTela('mensagemJogo', mensagemTentativas);
-    document.getElementById('reiniciar').removeAttribute('disabled');
+    exibirTextoNaTela('mensagem-jogo', mensagemTentativas);
+
+    document.getElementById('reiniciar').disabled = false;
+    document.getElementById('botao-chutar').disabled = true;
   } else {
-    let dica = chute > numeroSecreto
-      ? 'O número secreto é menor'
-      : 'O número secreto é maior';
-    exibirTextoNaTela('mensagemJogo', dica);
+    if (chute > numeroSecreto) {
+      exibirTextoNaTela('mensagem-jogo', 'O número secreto é menor');
+    } else {
+      exibirTextoNaTela('mensagem-jogo', 'O número secreto é maior');
+    }
     tentativas++;
     limparCampo();
   }
@@ -177,14 +234,15 @@ function gerarNumeroAleatorio() {
 }
 
 function limparCampo() {
-    const chute = document.getElementById('inputChute');
-    chute.value = '';
+  document.getElementById('input-chute').value = '';
+  document.getElementById('input-chute').focus();
 }
 
 function reiniciarJogo() {
-    numeroSecreto = gerarNumeroAleatorio();
-    limparCampo();
-    tentativas = 1;
-    exibirMensagemInicial();
-    document.getElementById('reiniciar').setAttribute('disabled', true)
+  numeroSecreto = gerarNumeroAleatorio();
+  tentativas = 1;
+  limparCampo();
+  exibirMensagemInicial();
+  document.getElementById('reiniciar').disabled = true;
+  document.getElementById('botao-chutar').disabled = false;
 }
